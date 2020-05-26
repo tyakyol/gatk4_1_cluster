@@ -47,17 +47,21 @@ for i in range(len(files)):
                                        name='results/mapped_{}.bam'.format(
                                            files[i][0][59:65])
                              ))
+                             
+    gwf.target_from_template('picardSort_{}'.format(files[i][0][59:65]),
+                             picard_sort(rgroup='results/rg_{}.bam'.format(
+                                 files[i][0][59:65]),
+                                         sorted_='results/sorted_{}.bam'.format(
+                                             files[i][0][59:65])
+                                         ))
 
-    gwf.target_from_template('gatkMD_{}'.format(files[i][0][59:65]),
-                             gatk_md(rgroup='results/rg_{}.bam'.format(
+    gwf.target_from_template('picardMD_{}'.format(files[i][0][59:65]),
+                             picard_md(sorted_='results/sorted_{}.bam'.format(
                                  files[i][0][59:65]),
                                        dups='results/md_{}.bam'.format(
                                            files[i][0][59:65]),
-                                       bai='results/md_{}.bam.bai'.format(
-                                           files[i][0][59:65]),
-                                       sbi='results/md_{}.bam.sbi'.format(
-                                           files[i][0][59:65]),
-                                       ref=rg
+                                       metrics='results/md_metrics_{}.txt'.format(
+                                           files[i][0][59:65])
                                        ))
 
 #     gwf.target_from_template('gatkHaplotypeCaller_{}'.format(files[i][0][59:65]),
