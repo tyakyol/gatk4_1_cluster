@@ -99,25 +99,43 @@ CREATE_INDEX=true
     return inputs, outputs, options, spec
     
 
-def gatk_md(rgroup, dups, bai, sbi, ref):
+def picard_sort(rgroup, sorted_):
     '''
-    Template for marking duplicates. This code not only marks duplicates but
-    also removes them, I am not sure if this is correct.
+    Template for sorting bam files.
     '''
-    inputs = [rgroup, ref]
-    outputs = [dups, bai, sbi]
+    inputs = [rgroup]
+    outputs = [sorted_]
     options = {
-        'cores': 16,
-        'memory': '32g',
-        'walltime': '96:00:00'
+        'cores': 8,
+        'memory': '64g',
+        'walltime': '24:00:00'
     }
     spec = '''
-gatk MarkDuplicatesSpark \
--I {rgroup} \
--O {dups} \
--R {ref} \
---remove-sequencing-duplicates true  
-    '''.format(rgroup=rgroup, dups=dups, ref=ref)
+java -jar ./libexec/picard/picard.jar SortSam \
+I={rgroup} \
+O={sorted_} \
+SORT_ORDER=coordinate
+    '''.format(rgroup=rgroup, sorted_=sorted_)
+    return inputs, outputs, options, spec
+    
+
+def picard_md(sorted_, dups, metrics):
+    '''
+    Template for marking duplicates.
+    '''
+    inputs = [sorted_]
+    outputs = [dups, metrics]
+    options = {
+        'cores': 8,
+        'memory': '32g',
+        'walltime': '24:00:00'
+    }
+    spec = '''
+java -jar ./libexec/picard/picard.jar MarkDuplicates \
+I={sorted_} \
+O={dups} \
+M={metrics}
+    '''.format(sorted_=sorted_, dups=dups, metrics=metrics)
     return inputs, outputs, options, spec
 
 
